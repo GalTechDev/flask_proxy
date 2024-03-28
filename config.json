@@ -1,0 +1,7 @@
+{
+    "ip":"localhost",
+    "port":80,
+    "redirection": {
+        "google": "https://www.google.com"
+    }
+}
