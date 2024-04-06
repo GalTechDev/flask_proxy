@@ -6,7 +6,7 @@ with open("config.json") as f:
     config = json.load(f)
 
 app = Flask('__main__')
-app.config['SERVER_NAME'] = f"{config.get('ip')}:{config.get('port')}"
+app.config['SERVER_NAME'] = f'{config.get("subdomain")}.{config.get("domain")}'
 
 ref = config.get("redirection")
 
@@ -14,7 +14,7 @@ ref = config.get("redirection")
 def home():
     page = ""
     for name in ref.keys():
-        page+=f"<a href=http://{name}.{app.config['SERVER_NAME']}>{name}</a>\n"
+        page+=f"<a href=http://{name}.{config.get('domain')}>{name}</a>\n"
     return page
 
 methods = ["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]

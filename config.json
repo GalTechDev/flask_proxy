@@ -1,6 +1,8 @@
 {
-    "ip":"localhost",
-    "port":80,
+    "domain":"galtech.cc",
+    "subdomain":"dev",
+    "ip":"192.168.1.60",
+    "port":8082,
     "redirection": {
         "google": "https://www.google.com"
     }
