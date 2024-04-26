@@ -1,2 +1,4 @@
 flask
+flask_sock
 requests
+websocket-client

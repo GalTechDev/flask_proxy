@@ -3,7 +3,6 @@ from flask_sock import Sock
 import requests
 import json
 import websocket
-import rel
 
 with open("config.json") as f:
     config = json.load(f)
