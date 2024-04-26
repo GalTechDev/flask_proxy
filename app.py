@@ -21,41 +21,45 @@ def home():
     return page
 
 methods = ["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
-def register(subdomain, sitename:str):
+def register(subdomain, data):
+    protocole = data.get("protocole")
+    domain = data.get("domain")
+    have_ws = data.get("websocket")
 
-    @socketio.route("/ws", subdomain=subdomain)
-    def handle_connect(ws):
+    if have_ws:
+        @socketio.route("/ws", subdomain=subdomain)
+        def handle_connect(ws):
 
-        def on_message(sws, message):
-            ws.send(message)
+            def on_message(sws, message):
+                ws.send(message)
 
-        def on_error(sws, error):
-            print(error)
+            def on_error(sws, error):
+                print(error)
 
-        def on_close(sws, close_status_code, close_msg):
-            ws.close()
-
-        def on_open(sws):
-            print("Server connected")
-
-        print('Client connected')
-        # Ouvrir une connexion WebSocket avec le serveur distant
-        ws_url = f"ws://{sitename.removeprefix('http://').removeprefix('https://')}/ws"
-        sws = websocket.WebSocketApp(ws_url,
-                                    on_open=on_open,
-                                    on_message=on_message,
-                                    on_error=on_error,
-                                    on_close=on_close)
-        
-        sws.run_forever()
-        while True:
-            try:
-                client_data = ws.recv()
-                sws.send(client_data)
-            except Exception:
-                sws.close()
+            def on_close(sws, close_status_code, close_msg):
                 ws.close()
-                break
+
+            def on_open(sws):
+                print("Server connected")
+
+            print('Client connected')
+            # Ouvrir une connexion WebSocket avec le serveur distant
+            ws_url = f"ws://{domain}/ws"
+            sws = websocket.WebSocketApp(ws_url,
+                                        on_open=on_open,
+                                        on_message=on_message,
+                                        on_error=on_error,
+                                        on_close=on_close)
+            
+            sws.run_forever()
+            while True:
+                try:
+                    client_data = ws.recv()
+                    sws.send(client_data)
+                except Exception:
+                    sws.close()
+                    ws.close()
+                    break
 
     @app.route('/', defaults={'path': ''}, methods=methods, subdomain=subdomain, endpoint=subdomain) 
     @app.route('/<path:path>', methods=methods, subdomain=subdomain, endpoint=subdomain)
@@ -79,14 +83,14 @@ def register(subdomain, sitename:str):
         ]
             return headers
 
-        res = requests.request(method=request.method, url=f'{sitename}/{path}{parse_arg(request.args)}',
+        res = requests.request(method=request.method, url=f'{protocole}{domain}/{path}{parse_arg(request.args)}',
             data=request.get_data(),
             cookies=request.cookies,
             allow_redirects=True,
             headers={"User-Agent":request.headers.get("User-Agent")}
         )
         print(f"\n\nInitial request : \nurl : {request.url}\nargs : {request.args}\ncookies : {request.cookies}")
-        print(f"Redirected to :\nurl : {sitename}/{path}{parse_arg(request.args)}\nresponse code : {res.status_code}")
+        print(f"Redirected to :\nurl : {protocole}{domain}/{path}{parse_arg(request.args)}\nresponse code : {res.status_code}")
             
         response = Response(res.content, res.status_code, fix_hearders(res.headers))
 
@@ -96,6 +100,6 @@ def register(subdomain, sitename:str):
         return response
 
 if __name__ == '__main__':
-    for sub, site in ref.items():
-        register(sub, site)
+    for sub, data in ref.items():
+        register(sub, data)
     app.run(host=config.get("ip"), port=config.get("port"), debug=True)
