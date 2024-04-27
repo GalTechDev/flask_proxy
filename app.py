@@ -9,7 +9,7 @@ with open("config.json") as f:
 
 app = Flask('__main__')
 app.config['SERVER_NAME'] = f'{config.get("domain")}'
-socketio = Sock(app)
+socket = Sock(app)
 ref = config.get("redirection")
 
 @app.route('/', subdomain=config.get("subdomain")) 
@@ -26,7 +26,7 @@ def register(subdomain, data):
     have_ws = data.get("websocket")
 
     if have_ws:
-        @socketio.route("/ws", subdomain=subdomain)
+        @socket.route("/ws", subdomain=subdomain)
         def handle_connect(ws):
 
             def on_message(sws, message):
