@@ -75,7 +75,8 @@ def register(subdomain, data):
                 return ""
             
         def fix_hearders(initial_headers):
-            excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection', 'Host']
+            excluded_headers = ['transfer-encoding']
+            print(initial_headers)
             headers = [
             (k,v) for k,v in initial_headers.items()
             if k.lower() not in excluded_headers
@@ -86,10 +87,10 @@ def register(subdomain, data):
             data=request.get_data(),
             cookies=request.cookies,
             allow_redirects=True,
-            headers={"User-Agent":request.headers.get("User-Agent")}
+            headers={k:v for (k,v) in fix_hearders(request.headers)}
         )
         print(f"\n\nInitial request : \nurl : {request.url}\nargs : {request.args}\ncookies : {request.cookies}")
-        print(f"Redirected to :\nurl : {protocole}{domain}/{path}{parse_arg(request.args)}\nresponse code : {res.status_code}")
+        print(f"Redirected to :\nurl : {protocole}{domain}/{path}{parse_arg(request.args)}\nresponse code : {res.status_code}\nheaders : {res.headers}")
             
         response = Response(res.content, res.status_code, fix_hearders(res.headers))
 
